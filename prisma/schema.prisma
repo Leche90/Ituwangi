@@ -1,0 +1,117 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ====================
+// Users (Freelancers & Admins)
+// ====================
+model User {
+  id        Int             @id @default(autoincrement())
+  email     String          @unique
+  password  String
+  fullName  String
+  role      UserRole        @default(FREELANCER)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  projects  Project[]
+  invoices  Invoice[]
+  portfolio PortfolioItem[]
+  finance   Finance?
+  settings  Settings?
+}
+
+enum UserRole {
+  FREELANCER
+  ADMIN
+}
+
+// ====================
+// Projects
+// ====================
+model Project {
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String
+  status       ProjectStatus @default(PENDING)
+  clientName   String
+  budget       Float?
+  deadline     DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  invoices     Invoice[]
+  freelancer   User          @relation(fields: [freelancerId], references: [id])
+  freelancerId Int
+}
+
+enum ProjectStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ====================
+// Invoices
+// ====================
+model Invoice {
+  id           Int           @id @default(autoincrement())
+  amount       Float
+  description  String
+  status       InvoiceStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  project      Project       @relation(fields: [projectId], references: [id])
+  projectId    Int
+  freelancer   User          @relation(fields: [freelancerId], references: [id])
+  freelancerId Int
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+// ====================
+// Finance (Earnings summary)
+// ====================
+model Finance {
+  id            Int   @id @default(autoincrement())
+  totalEarnings Float @default(0)
+  paid          Float @default(0)
+  pending       Float @default(0)
+  overdue       Float @default(0)
+  freelancer    User  @relation(fields: [freelancerId], references: [id])
+  freelancerId  Int   @unique
+}
+
+// ====================
+// Portfolio Items
+// ====================
+model PortfolioItem {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  freelancer   User     @relation(fields: [freelancerId], references: [id])
+  freelancerId Int
+}
+
+// ====================
+// Settings
+// ====================
+model Settings {
+  id            Int     @id @default(autoincrement())
+  notifications Boolean @default(true)
+  theme         String  @default("light")
+  freelancer    User    @relation(fields: [freelancerId], references: [id])
+  freelancerId  Int     @unique
+}
