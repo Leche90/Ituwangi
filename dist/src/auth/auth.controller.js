@@ -17,6 +17,10 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const signup_dto_1 = require("./dtos/signup.dto");
 const login_dto_1 = require("./dtos/login.dto");
+const admin_signup_dto_1 = require("./dtos/admin-signup.dto");
+const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
+const roles_decorator_1 = require("../common/decorators/roles.decorator");
+const roles_guard_1 = require("../common/guards/roles.guard");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -26,6 +30,10 @@ let AuthController = class AuthController {
     }
     async login(dto) {
         return this.authService.login(dto);
+    }
+    async signupAdmin(req, dto) {
+        const creatorId = req.user['id'];
+        return this.authService.signupAdmin(dto, creatorId);
     }
 };
 exports.AuthController = AuthController;
@@ -44,6 +52,16 @@ __decorate([
     __metadata("design:paramtypes", [login_dto_1.LoginDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    (0, common_1.Post)('admin/signup'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, admin_signup_dto_1.AdminSignupDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "signupAdmin", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
     __metadata("design:paramtypes", [auth_service_1.AuthService])

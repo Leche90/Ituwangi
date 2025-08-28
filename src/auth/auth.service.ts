@@ -54,7 +54,13 @@ export class AuthService {
     return user;
   }
 
+  // Create admin (only by another admin)
   async signupAdmin(dto: AdminSignupDto, creatorId: number) {
+    const creator = await this.prisma.user.findUnique({ where: { id: creatorId } });
+    if (!creator || creator.role !== 'ADMIN') {
+      throw new UnauthorizedException('Only admins can create new admin accounts');
+    }
+    
     // Prevent duplicates
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) throw new ConflictException('Email already in use');
