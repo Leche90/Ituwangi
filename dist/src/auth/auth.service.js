@@ -26,9 +26,10 @@ let AuthService = class AuthService {
         const hashed = await bcrypt.hash(dto.password, 10);
         const user = await this.prisma.user.create({
             data: {
+                fullName: dto.fullName,
                 email: dto.email,
                 password: hashed,
-                fullName: dto.fullName,
+                role: 'FREELANCER',
             },
             select: {
                 id: true,
@@ -49,6 +50,27 @@ let AuthService = class AuthService {
         if (!ok)
             throw new common_1.UnauthorizedException('Invalid credentials');
         return user;
+    }
+    async signupAdmin(dto, creatorId) {
+        const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+        if (existing)
+            throw new common_1.ConflictException('Email already in use');
+        const hashed = await bcrypt.hash(dto.password, 10);
+        return this.prisma.user.create({
+            data: {
+                email: dto.email,
+                fullName: dto.fullName,
+                password: hashed,
+                role: 'ADMIN',
+            },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                createdAt: true,
+            },
+        });
     }
     async login(dto) {
         const user = await this.validateUser(dto.email, dto.password);

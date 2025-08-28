@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
+import { AdminSignupDto } from './dtos/admin-signup.dto';
 export declare class AuthService {
     private readonly prisma;
     private readonly jwtService;
@@ -23,6 +24,13 @@ export declare class AuthService {
         role: import(".prisma/client").$Enums.UserRole;
         createdAt: Date;
         updatedAt: Date;
+        id: number;
+    }>;
+    signupAdmin(dto: AdminSignupDto, creatorId: number): Promise<{
+        email: string;
+        fullName: string;
+        role: import(".prisma/client").$Enums.UserRole;
+        createdAt: Date;
         id: number;
     }>;
     login(dto: LoginDto): Promise<{

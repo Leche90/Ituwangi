@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
+import { AdminSignupDto } from './dtos/admin-signup.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,11 +24,12 @@ export class AuthService {
     // Create user
     const user = await this.prisma.user.create({
       data: {
+        fullName: dto.fullName,
         email: dto.email,
         password: hashed,
-        fullName: dto.fullName,        
+        role: 'FREELANCER',              
       },
-      
+
       select: {
         id: true,
         email: true,
@@ -51,6 +53,31 @@ export class AuthService {
 
     return user;
   }
+
+  async signupAdmin(dto: AdminSignupDto, creatorId: number) {
+    // Prevent duplicates
+    const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    if (existing) throw new ConflictException('Email already in use');
+
+    const hashed = await bcrypt.hash(dto.password, 10);
+
+    return this.prisma.user.create({
+      data: {
+        email: dto.email,
+        fullName:dto.fullName,
+        password: hashed,
+        role: 'ADMIN',
+      },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+  }
+
 
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto.email, dto.password);
