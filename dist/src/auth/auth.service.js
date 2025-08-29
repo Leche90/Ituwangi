@@ -51,30 +51,34 @@ let AuthService = class AuthService {
             throw new common_1.UnauthorizedException('Invalid credentials');
         return user;
     }
-    async signupAdmin(dto, creatorId) {
-        const creator = await this.prisma.user.findUnique({ where: { id: creatorId } });
-        if (!creator || creator.role !== 'ADMIN') {
-            throw new common_1.UnauthorizedException('Only admins can create new admin accounts');
+    async signupAdmin(dto, createdById) {
+        const adminCount = await this.prisma.user.count({ where: { role: 'ADMIN' } });
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        if (adminCount === 0) {
+            const admin = await this.prisma.user.create({
+                data: {
+                    ...dto,
+                    password: hashedPassword,
+                    role: 'ADMIN',
+                },
+            });
+            return { message: 'First admin created sccessfully',
+                admin };
+            const newAdmin = await this.prisma.user.create({
+                data: {
+                    ...dto,
+                    password: hashedPassword,
+                    role: 'ADMIN',
+                },
+            });
+            return { message: 'Admin created successfully', newAdmin };
         }
-        const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
-        if (existing)
-            throw new common_1.ConflictException('Email already in use');
-        const hashed = await bcrypt.hash(dto.password, 10);
-        return this.prisma.user.create({
-            data: {
-                email: dto.email,
-                fullName: dto.fullName,
-                password: hashed,
-                role: 'ADMIN',
-            },
-            select: {
-                id: true,
-                email: true,
-                fullName: true,
-                role: true,
-                createdAt: true,
-            },
-        });
+    }
+    generateToken(user) {
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        return {
+            access_token: this.jwtService.sign(payload)
+        };
     }
     async login(dto) {
         const user = await this.validateUser(dto.email, dto.password);

@@ -26,13 +26,32 @@ export declare class AuthService {
         updatedAt: Date;
         id: number;
     }>;
-    signupAdmin(dto: AdminSignupDto, creatorId: number): Promise<{
-        email: string;
-        fullName: string;
-        role: import(".prisma/client").$Enums.UserRole;
-        createdAt: Date;
-        id: number;
+    signupAdmin(dto: AdminSignupDto, createdById?: number): Promise<{
+        message: string;
+        admin: {
+            email: string;
+            password: string;
+            fullName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
+        };
+        newAdmin?: undefined;
+    } | {
+        message: string;
+        newAdmin: {
+            email: string;
+            password: string;
+            fullName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+            id: number;
+        };
+        admin?: undefined;
     }>;
+    private generateToken;
     login(dto: LoginDto): Promise<{
         user: {
             id: number;

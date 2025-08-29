@@ -18,12 +18,11 @@ const auth_service_1 = require("./auth.service");
 const signup_dto_1 = require("./dtos/signup.dto");
 const login_dto_1 = require("./dtos/login.dto");
 const admin_signup_dto_1 = require("./dtos/admin-signup.dto");
-const jwt_auth_guard_1 = require("../common/guards/jwt-auth.guard");
-const roles_decorator_1 = require("../common/decorators/roles.decorator");
-const roles_guard_1 = require("../common/guards/roles.guard");
+const prisma_service_1 = require("../prisma/prisma.service");
 let AuthController = class AuthController {
-    constructor(authService) {
+    constructor(authService, prisma) {
         this.authService = authService;
+        this.prisma = prisma;
     }
     async signup(dto) {
         return this.authService.signupFreelancer(dto);
@@ -32,8 +31,18 @@ let AuthController = class AuthController {
         return this.authService.login(dto);
     }
     async signupAdmin(req, dto) {
-        const creatorId = req.user['id'];
-        return this.authService.signupAdmin(dto, creatorId);
+        const adminCount = await this.prisma.user.count({ where: { role: 'ADMIN' } });
+        if (adminCount === 0) {
+            return this.authService.signupAdmin(dto);
+        }
+        if (!req.user) {
+            throw new common_1.UnauthorizedException('Login as admin to create another admin');
+        }
+        const currentUser = req.user;
+        if (currentUser.role !== 'ADMIN') {
+            throw new common_1.UnauthorizedException('Only admins can create new admins');
+        }
+        return this.authService.signupAdmin(dto);
     }
 };
 exports.AuthController = AuthController;
@@ -45,7 +54,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "signup", null);
 __decorate([
-    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, common_1.Post)('login'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -53,8 +61,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "login", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN'),
     (0, common_1.Post)('admin/signup'),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
@@ -64,6 +70,7 @@ __decorate([
 ], AuthController.prototype, "signupAdmin", null);
 exports.AuthController = AuthController = __decorate([
     (0, common_1.Controller)('auth'),
-    __metadata("design:paramtypes", [auth_service_1.AuthService])
+    __metadata("design:paramtypes", [auth_service_1.AuthService,
+        prisma_service_1.PrismaService])
 ], AuthController);
 //# sourceMappingURL=auth.controller.js.map
