@@ -57,31 +57,37 @@ let AuthService = class AuthService {
         if (adminCount === 0) {
             const admin = await this.prisma.user.create({
                 data: {
-                    ...dto,
+                    email: dto.email,
                     password: hashedPassword,
+                    fullName: dto.fullName,
                     role: 'ADMIN',
                 },
             });
             return { message: 'First admin created sccessfully',
                 admin };
-            const newAdmin = await this.prisma.user.create({
-                data: {
-                    ...dto,
-                    password: hashedPassword,
-                    role: 'ADMIN',
-                },
-            });
-            return { message: 'Admin created successfully', newAdmin };
         }
-    }
-    generateToken(user) {
-        const payload = { sub: user.id, email: user.email, role: user.role };
-        return {
-            access_token: this.jwtService.sign(payload)
-        };
+        const newAdmin = await this.prisma.user.create({
+            data: {
+                email: dto.email,
+                password: hashedPassword,
+                fullName: dto.fullName,
+                role: 'ADMIN',
+            },
+            select: {
+                id: true,
+                email: true,
+                fullName: true,
+                role: true,
+                createdAt: true,
+            },
+        });
+        return { message: 'Admin created successfully', newAdmin };
     }
     async login(dto) {
         const user = await this.validateUser(dto.email, dto.password);
+        if (user.role !== 'FREELANCER') {
+            throw new common_1.UnauthorizedException('Access denied');
+        }
         const token = this.signToken(user.id, user.email, user.role);
         const safeUser = {
             id: user.id,
@@ -91,8 +97,28 @@ let AuthService = class AuthService {
         };
         return { user: safeUser, access_token: token };
     }
+    async loginAdmin(dto) {
+        const user = await this.validateUser(dto.email, dto.password);
+        if (user.role !== 'ADMIN') {
+            throw new common_1.UnauthorizedException('You are not authorized to access');
+        }
+        const token = this.signToken(user.id, user.email, user.role);
+        const safeAdmin = {
+            id: user.id,
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+        };
+        return { admin: safeAdmin, access_token: token };
+    }
     signToken(userId, email, role) {
         return this.jwtService.sign({ sub: userId, email, role }, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+    }
+    generateToken(user) {
+        const payload = { sub: user.id, email: user.email, role: user.role };
+        return {
+            access_token: this.jwtService.sign(payload)
+        };
     }
 };
 exports.AuthService = AuthService;

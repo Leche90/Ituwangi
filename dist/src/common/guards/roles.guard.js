@@ -20,12 +20,18 @@ let RolesGuard = class RolesGuard {
     canActivate(ctx) {
         const requiredRoles = this.reflector.getAllAndOverride(roles_decorator_1.ROLES_KEY, [
             ctx.getHandler(),
-            ctx.getClass(),
+            ctx.getClass()
         ]);
         if (!requiredRoles)
             return true;
         const { user } = ctx.switchToHttp().getRequest();
-        return user && requiredRoles.includes(user.role);
+        if (!user) {
+            throw new common_1.ForbiddenException('No user found in request');
+        }
+        if (!requiredRoles.includes(user.role)) {
+            throw new common_1.ForbiddenException('You do not have access to this resource');
+        }
+        return true;
     }
 };
 exports.RolesGuard = RolesGuard;

@@ -9,22 +9,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AdminSignupDto = void 0;
+exports.AdminLoginDto = void 0;
 const class_validator_1 = require("class-validator");
-class AdminSignupDto {
+class AdminLoginDto {
 }
-exports.AdminSignupDto = AdminSignupDto;
+exports.AdminLoginDto = AdminLoginDto;
 __decorate([
-    (0, class_validator_1.IsEmail)({}, { message: 'Please enter a valid email' }),
+    (0, class_validator_1.IsEmail)({}, { message: 'Please enter a valid email address' }),
     __metadata("design:type", String)
-], AdminSignupDto.prototype, "email", void 0);
-__decorate([
-    (0, class_validator_1.IsNotEmpty)({ message: 'Full name is required' }),
-    __metadata("design:type", String)
-], AdminSignupDto.prototype, "fullName", void 0);
+], AdminLoginDto.prototype, "email", void 0);
 __decorate([
     (0, class_validator_1.IsNotEmpty)({ message: 'Password is required' }),
-    (0, class_validator_1.MinLength)(8, { message: 'Password must be at least 8 characters long' }),
     __metadata("design:type", String)
-], AdminSignupDto.prototype, "password", void 0);
-//# sourceMappingURL=admin-signup.dto.js.map
+], AdminLoginDto.prototype, "password", void 0);
+//# sourceMappingURL=admin-login.dto.js.map

@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { AdminSignupDto } from './dtos/admin-signup.dto';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { RolesGuard } from 'src/common/guards/roles.guard';
@@ -22,33 +23,38 @@ export class AuthController {
     return this.authService.signupFreelancer(dto);
   }
 
-  // Login (both freelancer & admin)
+  // Login for freelancers
   @Post('login')
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
-  // create admin - first admin i automatic, others require authentication
-  @Post('admin/signup')
-  async signupAdmin(@Req() req: Request, @Body() dto: AdminSignupDto) {
-    const adminCount = await this.prisma.user.count({ where: { role: 'ADMIN' } });
-
-    //  First admin - no authentication required
-    if (adminCount === 0) {
-      return this.authService.signupAdmin(dto);
+    // create first admin (no auth required)    
+  @Post('admin/first-admin')
+  async firstAdmin(@Body() dto: AdminSignupDto) {
+    const adminCount = await this.prisma.user.count({ 
+      where: { role: 'ADMIN' } 
+    });
+    
+    if (adminCount > 0) {
+      throw new UnauthorizedException('First admin already exists. Use /admin/signup instead.');
     }
-
-    // Other admins - authentication & role guard required
-    if (!req.user) {
-      throw new UnauthorizedException('Login as admin to create another admin')
-    }
-
-    // Check if current user is admin
-    const currentUser = req.user as any;
-    if (currentUser.role !== 'ADMIN') {
-      throw new UnauthorizedException('Only admins can create new admins');
-    }
-
+    
     return this.authService.signupAdmin(dto);
+  }
+
+  // PROTECTED: Endpoint for creating additional admins (requires admin auth)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('admin/signup')
+  async adminSignup(@Body() dto: AdminSignupDto) {
+    return this.authService.signupAdmin(dto);
+  }
+
+  // Login for admins
+  @HttpCode(HttpStatus.OK)
+  @Post('admin/login')
+  async adminLogin(@Body() dto: AdminLoginDto) {
+    return this.authService.loginAdmin(dto);
   }
 }

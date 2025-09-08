@@ -2,7 +2,7 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dtos/signup.dto';
 import { LoginDto } from './dtos/login.dto';
 import { AdminSignupDto } from './dtos/admin-signup.dto';
-import { Request } from 'express';
+import { AdminLoginDto } from './dtos/admin-login.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 export declare class AuthController {
     private readonly authService;
@@ -23,11 +23,11 @@ export declare class AuthController {
             id: number;
             email: string;
             fullName: string;
-            role: import(".prisma/client").$Enums.UserRole;
+            role: "FREELANCER";
         };
         access_token: string;
     }>;
-    signupAdmin(req: Request, dto: AdminSignupDto): Promise<{
+    firstAdmin(dto: AdminSignupDto): Promise<{
         message: string;
         admin: {
             email: string;
@@ -43,6 +43,17 @@ export declare class AuthController {
         message: string;
         newAdmin: {
             email: string;
+            fullName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            id: number;
+        };
+        admin?: undefined;
+    }>;
+    adminSignup(dto: AdminSignupDto): Promise<{
+        message: string;
+        admin: {
+            email: string;
             password: string;
             fullName: string;
             role: import(".prisma/client").$Enums.UserRole;
@@ -50,6 +61,25 @@ export declare class AuthController {
             updatedAt: Date;
             id: number;
         };
+        newAdmin?: undefined;
+    } | {
+        message: string;
+        newAdmin: {
+            email: string;
+            fullName: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            id: number;
+        };
         admin?: undefined;
+    }>;
+    adminLogin(dto: AdminLoginDto): Promise<{
+        admin: {
+            id: number;
+            email: string;
+            fullName: string;
+            role: "ADMIN";
+        };
+        access_token: string;
     }>;
 }

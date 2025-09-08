@@ -1,5 +1,5 @@
 export declare class AdminSignupDto {
-    fullName: string;
     email: string;
+    fullName: string;
     password: string;
 }
