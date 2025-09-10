@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = "http://localhost:3000/auth/freelancer";
+const API_URL = "http://localhost:3000/auth";
 
 // Freelancer Signup
 export const freelancerSignup = async (formData) => {

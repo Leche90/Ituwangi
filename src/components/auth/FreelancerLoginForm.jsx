@@ -28,10 +28,11 @@ const FreelancerLoginForm = () => {
 
         try {
             const data = await freelancerLogin(credentials);
+            localStorage.setItem("token", data.access_token);
             login(data);
             navigate('/freelancer/dashboard');
         } catch (err) {
-            setError(err.message || "Login failed");
+            setError(err.message || "Login failed. Please try again");
         } finally {
             setLoading(false);
         }

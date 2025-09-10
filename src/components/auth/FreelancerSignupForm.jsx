@@ -29,7 +29,7 @@ const FreelancerSignupForm = () => {
             await freelancerSignup(formData);
             navigate('/freelancer/login');
         } catch (err) {
-            setError(err.message || "Signup failed");
+            setError(err.message || "Signup failed. Please try again");
         } finally {
             setLoading(false);
         }
