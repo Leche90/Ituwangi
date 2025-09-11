@@ -8,7 +8,7 @@ const FreelancerDashboardPage = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/freelancer/login');
+        navigate('/login');
     };
 
     return (
