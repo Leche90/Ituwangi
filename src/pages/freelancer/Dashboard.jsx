@@ -18,7 +18,7 @@ const FreelancerDashboardPage = () => {
       <div className="dashboard-header">
         <div>
           <h1 className="dashboard-title">
-            Welcome, {freelancer?.fullName || "Freelancer"}
+            Welcome, {freelancer?.fullName}
           </h1>
         </div>        
       </div>

@@ -1,4 +1,3 @@
-// src/components/layouts/DashboardLayout.jsx
 import Sidebar from "../../components/common/Sidebar";
 import Navbar from "../../components/common/Navbar";
 
@@ -15,7 +14,6 @@ const DashboardLayout = ({ children }) => {
         .dashboard-layout {
           display: flex;
           min-height: 100vh;
-          background-color: #f5f7fa;
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
