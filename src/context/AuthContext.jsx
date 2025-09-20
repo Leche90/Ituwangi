@@ -8,15 +8,23 @@ const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         if (token && !freelancer) {
-            const storedFrelancer = localStorage.getItem('freelancer');
-            if (storedFrelancer) setFreelancer(JSON.parse(storedFrelancer));
+            try {
+                const storedFreelancer = localStorage.getItem('freelancer');
+                if (storedFreelancer && storedFrelancer !== "undefined") {
+                    setFreelancer(JSON.parse(storedFrelancer));
+                }
+            } catch (error) {
+                console.error("Failed to parse freelancer from localStorage:", error);
+                localStorage.removeItem('freelancer');
+                }
             }
-        }, [token, freelancer]);
+    }, [token, freelancer]);
 
         const login = (data) => {
-            setToken(data.token);
+            setToken(data.token || data.access_token);
             setFreelancer(data.freelancer);
-            localStorage.setItem('token', data.token);
+
+            localStorage.setItem('token', data.token || data.access_token);
             localStorage.setItem('freelancer', JSON.stringify(data.freelancer));
         };
 
