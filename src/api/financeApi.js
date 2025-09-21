@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/finance";
+const API_URL = "http://localhost:3000/freelancer/finance";
 
 // Get earnings overview
 const getEarnings = async () => {
@@ -16,4 +16,5 @@ const getEarnings = async () => {
 export { getEarnings };
 
 const financeApi = { getEarnings };
+
 export default financeApi;

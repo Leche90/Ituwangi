@@ -25,7 +25,7 @@ const freelancerLogin = async (credentials) => {
 // Fetch freelancer notes (for dashboard)
 const getNotes = async () => {
   try {
-    const response = await axios.get("http://localhost:3000/freelancer/notes");
+    const response = await axios.get("http://localhost:3000/notes");
     return response.data;
   } catch (error) {
     console.error("Failed to fetch notes:", error);

@@ -1,4 +1,3 @@
-// src/pages/freelancer/FreelancerDashboardPage.jsx
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +34,7 @@ import invoiceApi from "../../api/invoiceApi";
 import projectApi from "../../api/projectApi";
 import portfolioApi from "../../api/portfolioApi";
 
-const FreelancerDashboardPage = () => {
+const Dashboard = () => {
   const { freelancer, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
